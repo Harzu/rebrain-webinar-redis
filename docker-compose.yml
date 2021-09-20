@@ -18,7 +18,9 @@ services:
     image: ${DOCKER_REPOSITORY}/${APP_NAME}:${VERSION}
     depends_on:
       - redis-sentinel
+    ports:
+      - "8080:8080"
     env_file:
-      - ./config/env.dev
+      - ./configs/env.dev
     deploy:
       replicas: ${REPLICAS_COUNT:-1}

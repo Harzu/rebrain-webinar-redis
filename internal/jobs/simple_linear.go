@@ -10,38 +10,48 @@ import (
 	"github.com/Harzu/rebrain-webinar-redis/internal/system/config"
 )
 
-const simpleJobName = "simple_job"
+const (
+	simpleLinearJobName = "simple_linear_job"
+	getLockInterval     = time.Second
+)
 
-type simpleJob struct {
+type simpleLinearJob struct {
 	spec    string
 	lockTTL time.Duration
 	locker  locker.Locker
 	logger  *zerolog.Logger
 }
 
-func newSimpleJob(
+func newSimpleLinearJob(
 	cfg *config.Jobs,
 	logger *zerolog.Logger,
 	locker locker.Locker,
 ) job {
-	return &simpleJob{
-		spec:    cfg.SimpleJobSpec,
-		lockTTL: cfg.SimpleJobSpecLockTTl,
+	return &simpleLinearJob{
+		spec:    cfg.SimpleLinearJobSpec,
+		lockTTL: cfg.SimpleLinearJobSpecLockTTl,
 		logger:  logger,
 		locker:  locker,
 	}
 }
 
-func (j *simpleJob) Run() {
+func (j *simpleLinearJob) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	jobLogger := j.logger.With().Str("job_name", simpleJobName).Logger()
+	jobLogger := j.logger.With().Str("job_name", simpleLinearJobName).Logger()
 
-	if _, err := j.locker.Obtain(ctx, simpleJobName, j.lockTTL); err != nil {
+	lock, err := j.locker.ObtainLinear(ctx, simpleLinearJobName, j.lockTTL, getLockInterval)
+	if err != nil {
 		jobLogger.Debug().Err(err).Msg("failed to obtain lock")
 		return
 	}
+
+	defer func() {
+		if err := lock.Release(ctx); err != nil {
+			jobLogger.Debug().Err(err).Msg("failed to release lock")
+		}
+	}()
 
 	jobLogger.Info().Msg("job start")
 	jobLogger.Info().Msg("job work")
@@ -49,6 +59,6 @@ func (j *simpleJob) Run() {
 	jobLogger.Info().Msg("job success")
 }
 
-func (j *simpleJob) Spec() string {
+func (j *simpleLinearJob) Spec() string {
 	return j.spec
 }

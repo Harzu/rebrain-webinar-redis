@@ -7,18 +7,16 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
-	"github.com/Harzu/rebrain-webinar-redis/internal/config"
+	"github.com/Harzu/rebrain-webinar-redis/internal/system/config"
 )
 
 const (
-	redisPrefix       = "rebrain_webinar"
 	readRedisTimeOut  = 200 * time.Millisecond
 	writeRedisTimeOut = 200 * time.Millisecond
 )
 
 type Client interface {
 	GetConnection() *redis.Client
-	BuildKeyWithPrefix(key string) string
 }
 
 type client struct {
@@ -47,8 +45,4 @@ func (r *client) GetConnection() *redis.Client {
 
 func (r *client) Close() error {
 	return r.client.Close()
-}
-
-func (r *client) BuildKeyWithPrefix(key string) string {
-	return fmt.Sprintf("%s_%s", redisPrefix, key)
 }

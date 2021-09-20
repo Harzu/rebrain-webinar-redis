@@ -6,9 +6,9 @@ ENV GOOS linux
 
 WORKDIR /app
 COPY ./go.mod ./go.sum ./
-RUN go mod tidy
+RUN go mod download
 
-COPY ../cmd .
+COPY . .
 RUN go build -o ./app ./cmd/app
 
 FROM gcr.io/distroless/static

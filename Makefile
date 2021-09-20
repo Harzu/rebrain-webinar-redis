@@ -25,9 +25,9 @@ build:
 run: ## Run develop docker-compose
 	@docker-compose up app
 
-run-replicas:
-	REPLICAS=3 docker-compose up app
+run-replicas: ## Run develop app with some replicas
+	REPLICAS_COUNT=3 docker-compose up app
 
-.PHONY: stop ## Stop all develop containers
-stop:
+.PHONY: stop
+stop: ## Stop all develop containers
 	@docker-compose down -v

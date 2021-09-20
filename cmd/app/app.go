@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/Harzu/rebrain-webinar-redis/internal"
-	"github.com/Harzu/rebrain-webinar-redis/internal/config"
+	"github.com/Harzu/rebrain-webinar-redis/internal/system/config"
 )
 
 func main() {

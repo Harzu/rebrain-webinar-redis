@@ -6,8 +6,8 @@ import (
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog"
 
-	"github.com/Harzu/rebrain-webinar-redis/internal/config"
 	"github.com/Harzu/rebrain-webinar-redis/internal/services/redis/locker"
+	"github.com/Harzu/rebrain-webinar-redis/internal/system/config"
 )
 
 type job interface {
@@ -30,6 +30,11 @@ func New(cfg *config.Jobs, logger *zerolog.Logger, locker locker.Locker) (Runner
 	simpleJob := newSimpleJob(cfg, logger, locker)
 	if _, err := scheduler.AddJob(simpleJob.Spec(), simpleJob); err != nil {
 		return nil, fmt.Errorf("failed to add simple job: %w", err)
+	}
+
+	simpleLinearJob := newSimpleLinearJob(cfg, logger, locker)
+	if _, err := scheduler.AddJob(simpleLinearJob.Spec(), simpleLinearJob); err != nil {
+		return nil, fmt.Errorf("failed to add simple linear job: %w", err)
 	}
 
 	return &jobsRunner{scheduler: scheduler}, nil
